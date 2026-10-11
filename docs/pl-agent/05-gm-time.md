@@ -8,30 +8,49 @@ Principle: agents take over the **prepare, collect and chase** work. The GM
 keeps the judgement and the relationship: the "so what" in a report, the
 strategic call, the conversation.
 
-## Where GM time goes (hypothesis, to verify with a one-week time log)
+## Where GM time goes
 
-| # | Work | What eats the time |
-|---|---|---|
-| 1 | Reporting | Pulling numbers from Meta, Google Ads, LinkedIn, GA4 into a monthly report, writing commentary |
-| 2 | Client communication | Weekly status mails, "how is it going?" questions, prepping and recapping client meetings |
-| 3 | Account monitoring | Checking budget pacing, CPA/ROAS swings, disapproved ads, broken tracking, every day across every account |
-| 4 | Internal coordination | Briefing designers and copywriters, chasing creatives, getting client approval on creatives |
-| 5 | Project admin | Productive tasks and time, budget burn, overservicing, change requests, invoicing input |
-| 6 | Onboarding | Kickoff, access, tracking audit (partly covered in phase 1) |
-| 7 | Account growth | Quarterly reviews, renewals, spotting upsell |
+Confirmed so far:
+- **Client communication is the GM's job**: weekly status mails, answering
+  client questions, preparing and recapping client meetings, following up on
+  promised actions. This is the main target of phase 2.
+- **Reporting is not done by the GM.** Owner to be named; the Reporting agent
+  supports that person.
+- **Daily account monitoring is needed, but not on ROAS / CPA.** The check
+  watches the KPIs agreed per client (see below).
+
+Still to verify with a one-week time log: how much time goes to monitoring,
+internal coordination, project admin, onboarding and account growth.
 
 ## Agents for phase 2
 
+### Client communication (GM)
+
 | Agent | Takes over | GM keeps | Trigger | Systems |
 |---|---|---|---|---|
-| **Performance Watch** | Daily check of every account: pacing vs budget, CPA/ROAS anomalies, disapprovals, conversion tracking dropping to zero, limited delivery. Posts **only exceptions** in Slack with a proposed action. | Deciding the action | Daily 07:30 | Meta, Google Ads, LinkedIn, GA4 |
-| **Reporting** | Builds the monthly report with all numbers, period comparison, top movers and a draft narrative. | Editing the 3–5 lines of insight and next steps | 1st working day of the month | Ad platforms, GA4, Productive |
-| **Client Pulse** | Drafts the weekly status mail from platform results, Productive tasks done/next and open questions. Drafts replies to "how is it going?" mails with current numbers. | Approve or edit in Slack; sent from GM's Outlook | Friday 10:00; incoming client mail | Outlook, Productive, ad platforms |
-| **Meeting** (extended from phase 1) | Prep brief before every client meeting (results since last call, open actions, agenda); recap after, with actions turned into Productive tasks. | Running the meeting, approving the recap | Calendar, Fathom | Outlook calendar, Fathom, Productive |
-| **Inbox triage** | Classifies client mails (question, request, approval, complaint), drafts replies, turns requests into tasks, flags urgent items. | Sending, handling sensitive mails | Incoming Outlook mail | Outlook, Productive |
-| **Creative Ops** | Turns a request from a call or mail into a brief and a Productive task for the designer; collects the result; sends it to the client for approval; chases approval. | Briefing quality check, final OK | Request detected; task done | Fathom, Outlook, Productive |
-| **Scope & Budget Guard** | Compares hours burned in Productive with the plan; detects requests outside the agreed scope in mails and transcripts; drafts a change request. | Talking to the client about scope | Weekly; request detected | Productive, Outlook, Fathom |
-| **Account Review** | Drafts the quarterly review: results vs goals, what worked, proposals, upsell signals; reminds before renewal dates. | Strategy and the conversation | Quarterly; 60 days before renewal | Ad platforms, HubSpot, Productive |
+| **Client Pulse** | Drafts the weekly status mail: what was done (Productive), results on the client's KPIs, next steps, open questions for the client. | Approve or edit in Slack; sent from the GM's Outlook | Weekly, per client | Outlook, Productive, ad platforms |
+| **Inbox triage** | Reads incoming client mail, classifies it (question, request, approval, complaint, urgent), drafts the reply with the facts filled in, turns requests into Productive tasks. | Sending; anything sensitive | Incoming Outlook mail | Outlook, Productive |
+| **Meeting** | Prep brief before every client meeting (what happened since last time, open actions, suggested agenda). Recap after, sent as the GM, with actions turned into tasks. | Running the meeting, approving the recap | Calendar, Fathom | Outlook calendar, Fathom, Productive |
+| **Promise tracker** | Keeps a list of everything the GM or the team promised the client in mails and calls, with dates. Warns before a promise is late; drafts the follow-up when it's done. | Deciding priorities | Continuous | Outlook, Fathom, Productive |
+| **Client memory** | One always-current summary per client: goals, KPIs, stakeholders and their preferences, decisions, open topics. The GM never has to reread old threads before a call. | — | Updated after every mail and meeting | Outlook, Fathom, HubSpot |
+
+### Monitoring and other work
+
+| Agent | Takes over | Owner keeps | Trigger | Systems |
+|---|---|---|---|---|
+| **Performance Watch** | Daily check of every account on the client's agreed KPIs, budget pacing, disapproved ads, broken tracking and campaigns that stopped delivering. Posts **only exceptions** in Slack. | Deciding the action | Daily 07:30 | Meta, Google Ads, LinkedIn, GA4 |
+| **Reporting** | Builds the monthly report with numbers and a draft narrative. | Reporting owner (not the GM) edits the insight | Monthly | Ad platforms, GA4, Productive |
+| **Creative Ops** | Brief → designer task → client approval → reminders. | Final OK | Request detected | Fathom, Outlook, Productive |
+| **Scope & Budget Guard** | Hours burned vs plan; requests outside the agreed scope; change request draft. | Client conversation | Weekly | Productive, Outlook, Fathom |
+| **Account Review** | Quarterly review draft, renewal reminders. | Strategy | Quarterly | Ad platforms, HubSpot, Productive |
+
+### KPIs per client, not fixed metrics
+
+ROAS and CPA are not the standard. At handover, the KPIs from the proposal are
+stored on the project (for example leads, cost per lead, reach, frequency,
+traffic, spend pacing). Performance Watch, Client Pulse and Reporting all read
+that KPI set, with a threshold per KPI for what counts as an exception. Which
+KPIs are typical per service package is still to be decided.
 
 ## Levers that are not agents
 
@@ -46,15 +65,15 @@ strategic call, the conversation.
 
 ## Where to start
 
-1. One-week time log with 2–3 GMs (categories above) to confirm the ranking.
-2. Start with **Performance Watch** and **Reporting**: high volume, mostly
-   internal, low risk, and the data is in platform APIs.
-3. Then **Client Pulse** and **Meeting** at L1 (draft and approve).
-4. Inbox triage, Creative Ops and Scope Guard once the action log and Slack
-   approval flow are proven.
+1. **Client Pulse** and **Meeting** at L1 (draft and approve): they hit GM
+   communication time directly and every mail is checked.
+2. **Inbox triage** with reply drafts, and **Client memory** next to it.
+3. **Performance Watch** on the agreed KPIs per client.
+4. Promise tracker, Creative Ops, Scope Guard once the Slack approval flow and
+   the action log are proven.
 
-Measure per GM: hours per account per month before and after, and accounts
-per GM. That ratio is the business case.
+Measure per GM: hours of client communication per account per month before
+and after, and accounts per GM.
 
 ## Impact on phase 1
 

@@ -33,14 +33,13 @@ Time-driven work gets its own component: the **cadence engine**.
 
 | Frequency | Task | Agent prepares | GM does | Level | Client-facing |
 |---|---|---|---|---|---|
-| Daily 07:30 | Account health: pacing, CPA/ROAS anomalies, disapprovals, tracking drops | Performance Watch | Acts on exceptions only | L3 (alert) | No |
+| Daily 07:30 | Account health: the client's agreed KPIs, budget pacing, disapprovals, tracking drops, stopped delivery | Performance Watch | Acts on exceptions only | L3 (alert) | No |
 | Weekly, Monday 08:30 | Week plan per GM: everything due this week across all clients + open exceptions | Orchestrator | Reads it | L3 | No |
-| Weekly, Tuesday | Creative fatigue check (frequency, CTR decay) + refresh proposal | Performance Watch | Decides on refresh | L0 | No |
-| Weekly, Friday 10:00 | Client status mail | Client Pulse | Approves / edits | L1 | Yes |
+| Weekly, Friday 10:00 | Client status mail | Client Pulse | Approves / edits (GM owns client communication) | L1 | Yes |
 | Weekly, Friday | Hours burned vs budget in Productive | Scope & Budget Guard | Acts if over plan | L3 (alert) | No |
 | Monthly, last working day | Media spend reconciliation: actual spend vs client budget, next month's budgets proposed | Reporting | Approves budgets; agent never changes platform budgets on its own | L0 | No |
 | Monthly, 1st–3rd working day | Invoice input to finance: media spend + fees per client | Deal Desk | Checks | L1 | No |
-| Monthly, due 5th working day (prep starts day 1) | Monthly report | Reporting | Writes the insight lines | L1 | Yes |
+| Monthly, due 5th working day (prep starts day 1) | Monthly report | Reporting | Not the GM: reporting owner writes the insight lines | L1 | Yes |
 | Monthly | Client call: prep brief before, recap after | Meeting | Runs the call | L1 | Yes |
 | Monthly | Tracking health audit (conversions firing, consent mode, GA4 vs platform gaps) | Performance Watch | Fixes or briefs a specialist | L0 | No |
 | Quarterly | Quarterly review deck draft + upsell signals | Account Review | Strategy, presents | L1 | Yes |
@@ -78,4 +77,5 @@ task_occurrences    id, recurring_task_id, due_at, prep_started_at,
 
 1. Which recurring tasks do GMs actually have today, per service package?
 2. Do you already use recurring tasks or templates in Productive?
-3. Report due date and format: one standard, or per client?
+3. Report due date and format: one standard, or per client? Who owns reporting?
+4. Which KPIs are standard per service package (ROAS / CPA are not)?
