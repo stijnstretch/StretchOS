@@ -7,6 +7,8 @@
   predictable and cheap.
 - **Judgement and writing** (is this lead a fit, write the recap, propose a
   team) run in LLM agents with narrow tool access.
+- **Recurring work** (daily, weekly, monthly, quarterly) is time-driven and is
+  scheduled by the cadence engine, see `06-recurring-cadence.md`.
 - **Every action**, by an agent or a workflow, is written to one action log per
   project. The webapp and the Slack threads read from that log.
 
@@ -38,6 +40,7 @@ flowchart LR
   end
 
   Sources --> RT[Event router<br/>normalise + match project]
+  CAD[Cadence engine<br/>daily, weekly, monthly,<br/>quarterly schedules] --> WF
   RT --> WF[Durable workflows<br/>waits, reminders, schedules]
   WF --> ORC[PL Orchestrator<br/>per project]
   ORC --> AG[Specialist agents<br/>Nurture, Meeting, Access,<br/>Deal Desk, Resourcing]

@@ -16,7 +16,10 @@ human, and whether the system actually saves GM time.
 4. **Agent performance** — per action type: volume, approval-without-edit rate,
    median time-to-approve, current autonomy level, promotion proposals.
    Estimated hours saved = volume × agreed minutes per manual action.
-5. **Policies** — autonomy level per action type, touch caps, business hours,
+5. **Cadence** — per project: upcoming and past recurring tasks (on time /
+   late / skipped). Per GM: week view of everything due across their clients.
+   See `06-recurring-cadence.md`.
+6. **Policies** — autonomy level per action type, touch caps, business hours,
    holiday calendar, kill switches.
 
 ## Data model (first cut)
