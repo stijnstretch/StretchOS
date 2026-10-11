@@ -96,8 +96,8 @@ Start: everything client-facing at L1, internal bookkeeping at L2/L3.
 
 ## 4. Open questions for the team
 
-1. Is sales a separate role from the growth manager, or the same person?
-2. Mailbox: Microsoft 365 / Outlook for all senders? (Needed to send "as" the GM.)
+1. ~~Is sales a separate role from the growth manager?~~ Yes, different people. See `05-gm-time.md`.
+2. ~~Outlook for all senders?~~ Yes, everyone uses Outlook.
 3. Where do proposals live today (HubSpot quotes, Google Docs, PandaDoc)?
 4. Event calendar: who owns it and how often are events planned?
 5. Is there a skills matrix today, or only Productive bookings?

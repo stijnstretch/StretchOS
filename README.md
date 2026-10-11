@@ -11,5 +11,6 @@ Design docs in [`docs/pl-agent`](docs/pl-agent):
 2. [Target flow](docs/pl-agent/02-target-flow.md) (Mermaid, importable into FigJam)
 3. [Agent architecture](docs/pl-agent/03-agent-architecture.md)
 4. [Tracking webapp](docs/pl-agent/04-tracking-webapp.md)
-5. [Interactive flow page](docs/pl-agent/flow.html)
-6. [FigJam board](https://www.figma.com/board/htM0rRmSmL1ILxXlUadZ15): lead to first meeting, after meeting to handover, agent architecture
+5. [Freeing up growth manager time](docs/pl-agent/05-gm-time.md) (phase 2: delivery)
+6. [Interactive flow page](docs/pl-agent/flow.html)
+7. [FigJam board](https://www.figma.com/board/htM0rRmSmL1ILxXlUadZ15): lead to first meeting, after meeting to handover, agent architecture
