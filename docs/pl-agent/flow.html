@@ -1,0 +1,523 @@
+<title>PL Agent Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: header + tabs; Flow tab = horizontal stage board (scrolls inside its own box) with a detail panel beside it. */
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --sunk:#EBEFF4; --ink:#16202B; --muted:#586474; --line:#D8DEE6;
+  --accent:#1D5CB8;
+  --k-trigger:#5F6B7B; --k-auto:#0B7F69; --k-approve:#B26B00; --k-human:#6448C4; --warn:#B8410D;
+  --k-trigger-bg:#EEF0F3; --k-auto-bg:#E3F4EF; --k-approve-bg:#FBF0DD; --k-human-bg:#EEEAFB; --warn-bg:#FCEBE2;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1319; --surface:#161D25; --sunk:#1C2530; --ink:#E5EAF0; --muted:#97A3B2; --line:#2A3542;
+  --accent:#7BA8F0;
+  --k-trigger:#A3AEBC; --k-auto:#4CC9AD; --k-approve:#EDB24F; --k-human:#A893F2; --warn:#F38A5A;
+  --k-trigger-bg:#222B36; --k-auto-bg:#12302A; --k-approve-bg:#352812; --k-human-bg:#262044; --warn-bg:#3A2017;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1319; --surface:#161D25; --sunk:#1C2530; --ink:#E5EAF0; --muted:#97A3B2; --line:#2A3542;
+  --accent:#7BA8F0;
+  --k-trigger:#A3AEBC; --k-auto:#4CC9AD; --k-approve:#EDB24F; --k-human:#A893F2; --warn:#F38A5A;
+  --k-trigger-bg:#222B36; --k-auto-bg:#12302A; --k-approve-bg:#352812; --k-human-bg:#262044; --warn-bg:#3A2017;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1320px;margin:0 auto;padding:28px 20px 64px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+.lede{color:var(--muted);max-width:68ch;margin-top:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:grid;gap:4px;margin-bottom:22px}
+
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:20px}
+.tab{appearance:none;border:0;background:none;color:var(--muted);font:600 15px var(--f-body);padding:10px 14px;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab:focus-visible,.card:focus-visible,.chip:focus-visible,.link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:4px 11px;font:600 13px var(--f-body);cursor:pointer}
+.chip[aria-pressed="false"]{opacity:.45}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.spacer{flex:1}
+
+.flow{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+@media (max-width:1000px){.flow{grid-template-columns:1fr}}
+.board{overflow-x:auto;padding-bottom:6px;min-width:0}
+.cols{display:grid;grid-template-columns:repeat(6,minmax(200px,1fr));gap:12px;min-width:1260px}
+.col{display:flex;flex-direction:column;gap:8px}
+.colhead{padding:2px 2px 6px;border-bottom:1px solid var(--line);margin-bottom:2px}
+.colhead .eyebrow{font-size:11px}
+.colhead h3{font-size:16px}
+
+.card{text-align:left;width:100%;border:1px solid var(--line);border-left:4px solid var(--c);background:var(--surface);color:var(--ink);border-radius:6px;padding:9px 10px 10px;cursor:pointer;display:grid;gap:5px;font:inherit}
+.card:hover{border-color:var(--c)}
+.card[aria-current="true"]{background:var(--cb);border-color:var(--c)}
+.card .top{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.id{font:600 11px var(--f-mono);color:var(--muted)}
+.kind{font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.05em;color:var(--c)}
+.card .t{font-weight:600;font-size:14.5px;line-height:1.3}
+.tag{font:600 10.5px var(--f-mono);text-transform:uppercase;letter-spacing:.05em;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
+.tag.new{border-color:var(--accent);color:var(--accent)}
+.tag.warn{border-color:var(--warn);color:var(--warn)}
+.card[hidden]{display:none!important}
+.connector{height:8px;margin:-4px auto;width:2px;background:var(--line)}
+
+.panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:grid;gap:14px;min-width:0}
+.panel dl{margin:0;display:grid;gap:10px}
+.panel dt{font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.panel dd{margin:2px 0 0}
+.callout{background:var(--warn-bg);border-left:3px solid var(--warn);padding:10px 12px;border-radius:4px}
+.callout .eyebrow{color:var(--warn)}
+.systems{display:flex;flex-wrap:wrap;gap:5px}
+.sys{font:12px var(--f-mono);background:var(--sunk);padding:2px 7px;border-radius:4px}
+
+.k-trigger{--c:var(--k-trigger);--cb:var(--k-trigger-bg)}
+.k-auto{--c:var(--k-auto);--cb:var(--k-auto-bg)}
+.k-approve{--c:var(--k-approve);--cb:var(--k-approve-bg)}
+.k-human{--c:var(--k-human);--cb:var(--k-human-bg)}
+
+/* Challenges */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:grid;gap:8px;min-width:0}
+.box p{color:var(--ink)}
+.box .muted{color:var(--muted)}
+.section{display:grid;gap:14px;margin-bottom:30px}
+.big{border-top:3px solid var(--warn)}
+.link{background:none;border:0;padding:0;color:var(--accent);font:600 13px var(--f-mono);cursor:pointer;text-align:left}
+ul.rules{margin:0;padding-left:20px;display:grid;gap:4px}
+
+/* Agents */
+.ladder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.ladder{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rung{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:grid;gap:6px;align-content:start}
+.rung .lv{font:700 22px var(--f-display);color:var(--accent)}
+.steps{display:flex;flex-wrap:wrap;gap:5px}
+
+/* Tracking mock */
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.mockbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--sunk)}
+.mockbar .eyebrow{margin-left:auto}
+.mockbody{padding:16px;display:grid;gap:18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:12px}
+.kpi .v{font:700 26px var(--f-display);font-variant-numeric:tabular-nums}
+.kpi .l{color:var(--muted);font-size:13px}
+.stages{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.stg{font:600 12px var(--f-mono);padding:7px 6px;border-radius:4px;background:var(--sunk);color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stg.done{background:var(--k-auto-bg);color:var(--k-auto)}
+.stg.now{background:var(--accent);color:var(--surface)}
+.access{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font:600 12px var(--f-mono);padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+.pill.ok{color:var(--k-auto);border-color:var(--k-auto)}
+.pill.wait{color:var(--k-approve);border-color:var(--k-approve)}
+.pill.no{color:var(--warn);border-color:var(--warn)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted)}
+.lvl{font:600 11px var(--f-mono);padding:1px 6px;border-radius:4px;background:var(--sunk)}
+.st{font:600 12px var(--f-mono)}
+.st.executed{color:var(--k-auto)} .st.pending{color:var(--k-approve)} .st.edited{color:var(--k-human)}
+.approvals{display:grid;gap:8px}
+.appr{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;border:1px solid var(--line);border-left:4px solid var(--k-approve);border-radius:6px;padding:10px 12px}
+.appr .what{flex:1 1 260px;min-width:0}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:5px;padding:4px 10px;font:600 13px var(--f-body);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.note{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.card{transition:background .12s,border-color .12s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">StretchOS · PL Agent · phase 1 draft</span>
+    <h1>From first download to kickoff</h1>
+    <p class="lede">The written process, challenged and redrawn as an agent flow. Each card is one step. Colour shows who acts; click a card for the trigger, the agent's job, the human gate and the challenge to today's way of working.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-flow" aria-selected="true" data-tab="flow">Flow</button>
+    <button class="tab" role="tab" id="tab-challenges" aria-selected="false" data-tab="challenges">Challenges</button>
+    <button class="tab" role="tab" id="tab-agents" aria-selected="false" data-tab="agents">Agents &amp; autonomy</button>
+    <button class="tab" role="tab" id="tab-tracking" aria-selected="false" data-tab="tracking">Tracking app</button>
+  </nav>
+
+  <section id="view-flow" role="tabpanel">
+    <div class="legend" id="legend"></div>
+    <div class="flow">
+      <div class="board"><div class="cols" id="cols"></div></div>
+      <aside class="panel" id="panel" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section id="view-challenges" role="tabpanel" hidden>
+    <div class="section">
+      <h2>Four things to settle first</h2>
+      <div class="grid2" id="bigs"></div>
+    </div>
+    <div class="section">
+      <h2>Rules for "never feels automated"</h2>
+      <div class="box"><ul class="rules" id="rules"></ul></div>
+    </div>
+    <div class="section">
+      <h2>Step by step</h2>
+      <div class="grid2" id="stepchallenges"></div>
+    </div>
+    <div class="section">
+      <h2>Open questions for the team</h2>
+      <div class="box"><ul class="rules" id="questions"></ul></div>
+    </div>
+  </section>
+
+  <section id="view-agents" role="tabpanel" hidden>
+    <div class="section">
+      <h2>One orchestrator per project, five specialists</h2>
+      <p class="lede" style="margin-top:0">Workflows handle the mechanics (waits, reminders, stage changes). Agents handle judgement and writing. Every action lands in one action log per project, which feeds Slack and the webapp.</p>
+      <div class="grid2" id="agents"></div>
+    </div>
+    <div class="section">
+      <h2>Autonomy is earned per action type</h2>
+      <div class="ladder" id="ladder"></div>
+      <p class="note">Promotion rule: an action type approved without edits in at least 95% of its last 30 runs gets proposed for the next level. The PL decides. A wrong send or a client complaint demotes it immediately. Start with everything client-facing at L1.</p>
+    </div>
+  </section>
+
+  <section id="view-tracking" role="tabpanel" hidden>
+    <div class="mock">
+      <div class="mockbar">
+        <strong>Example Client NV</strong>
+        <span class="tag">Owner: growth manager</span>
+        <span class="tag">HubSpot deal linked</span>
+        <span class="eyebrow">Example data · mock-up</span>
+      </div>
+      <div class="mockbody">
+        <div class="kpis" id="kpis"></div>
+        <div style="display:grid;gap:8px">
+          <span class="eyebrow">Stage</span>
+          <div class="stages" id="stages"></div>
+        </div>
+        <div style="display:grid;gap:8px">
+          <span class="eyebrow">Access status (verified via platform APIs)</span>
+          <div class="access" id="access"></div>
+        </div>
+        <div style="display:grid;gap:8px">
+          <span class="eyebrow">Waiting on a human (same items as in Slack)</span>
+          <div class="approvals" id="approvals"></div>
+        </div>
+        <div style="display:grid;gap:8px">
+          <span class="eyebrow">Action log</span>
+          <div class="tablewrap"><table id="log"></table></div>
+        </div>
+      </div>
+    </div>
+    <p class="note" style="margin-top:10px">Other screens: portfolio of all projects, approval inbox, agent performance (approval-without-edit rate, hours saved), policies. See docs/pl-agent/04-tracking-webapp.md.</p>
+  </section>
+</div>
+
+<script>
+const KINDS = {
+  trigger:{label:"Trigger", desc:"event from a system"},
+  auto:{label:"Agent acts", desc:"L2 / L3"},
+  approve:{label:"Agent drafts, human approves", desc:"L1 in Slack"},
+  human:{label:"Human", desc:"decision or work"}
+};
+const STAGES = [
+  {id:"in", name:"Inbound", sub:"Sales"},
+  {id:"out", name:"Outbound", sub:"Sales"},
+  {id:"meet", name:"First meeting", sub:"Discovery"},
+  {id:"after", name:"After meeting", sub:"Recap & access"},
+  {id:"close", name:"Proposal & close", sub:"Deal desk"},
+  {id:"hand", name:"Handover", sub:"Signed → delivery"}
+];
+const STEPS = [
+  {id:"IN1",stage:"in",kind:"trigger",change:"changed",title:"Content download: dedupe, enrich, score",
+   trigger:"HubSpot form submission, first conversion of this contact.",
+   does:"Nurture Agent stops if the contact is a client, has an open deal or works at a company we already talk to. Otherwise it enriches with Clay and scores ICP fit.",
+   gate:"None.", client:"Nothing yet.", systems:["HubSpot","Clay"], agent:"Nurture",
+   challenge:"\"First time\" must exclude existing clients and open deals. A high-fit lead should not get a newsletter question; it should go to sales."},
+  {id:"IN2",stage:"in",kind:"approve",change:"new",title:"High-fit lead → sales alert",
+   trigger:"ICP score above threshold.",
+   does:"Posts a short brief in Slack (company, role, what they downloaded) with a suggested first mail from the sales owner.",
+   gate:"Sales approves, edits or skips.", client:"A personal mail from a named salesperson.", systems:["Slack","Outlook","HubSpot"], agent:"Nurture"},
+  {id:"IN3",stage:"in",kind:"auto",change:"changed",title:"Preference mail, next working day",
+   trigger:"Next working day, 09:00–11:00 with a random minute.",
+   does:"Plain-text mail from a named Stretch person with three one-click links: Podcast, Content, Newsletter. Each click sets HubSpot consent and the list.",
+   gate:"Template approved once, then autonomous.", client:"A short personal mail, no marketing layout.", systems:["Outlook","HubSpot"], agent:"Nurture",
+   challenge:"Asking for a reply creates manual work. One-click links give a machine-readable answer and record EU consent explicitly."},
+  {id:"IN4",stage:"in",kind:"auto",change:"new",title:"Reply stops it, silence gets one reminder",
+   trigger:"Reply received, or no click after 5 working days.",
+   does:"A reply pauses all automation for the contact and goes to the owner in Slack. No reaction: one soft reminder, then stop.",
+   gate:"None.", client:"At most one follow-up.", systems:["Outlook","Slack"], agent:"Nurture"},
+
+  {id:"OUT1",stage:"out",kind:"trigger",change:"changed",title:"Call logged with a disposition",
+   trigger:"Sales logs the call in HubSpot with a mandatory outcome: No answer, Not now – event, Meeting booked, Not interested, Wrong person.",
+   does:"Routes the contact to the right follow-up.", gate:"Sales logs the call.", client:"Nothing.", systems:["HubSpot"], agent:"—",
+   challenge:"Everything after this depends on one structured field. Without it the agent can't tell a missed call from a refusal."},
+  {id:"OUT2",stage:"out",kind:"approve",change:"changed",title:"No answer → follow-up mail",
+   trigger:"Next working day, 08:30, Belgian holidays respected.",
+   does:"Drafts a short mail referring to the call attempt, offering a meeting link first. Mentions the next event only if one is planned within 8 weeks.",
+   gate:"Daily Slack digest: \"9 follow-ups ready\" → approve all, or one by one.", client:"A mail from the person who called.", systems:["Outlook","HubSpot"], agent:"Nurture",
+   challenge:"Inviting to an event after one missed call skips the real goal, a meeting, and reads like a sequence. And what if no event is planned?"},
+  {id:"OUT3",stage:"out",kind:"auto",change:"kept",title:"Yes to event → confirmation",
+   trigger:"Disposition \"Not now – event\".",
+   does:"Same-day mail: noted, we'll let you know when the next one is. Adds the contact to the event-interest list.",
+   gate:"Template approved once.", client:"A short confirmation from the caller.", systems:["Outlook","HubSpot"], agent:"Nurture"},
+  {id:"OUT4",stage:"out",kind:"approve",change:"new",title:"Event published → personal invites",
+   trigger:"Marketing publishes an event in the event calendar.",
+   does:"Drafts personal invites for everyone on the interest list, plus a reminder the week before.",
+   gate:"Marketing approves the batch.", client:"The promised invite, from the person they spoke to.", systems:["HubSpot","Outlook"], agent:"Nurture",
+   challenge:"\"We will let you know\" has no loop in today's process. Without this step the promise breaks silently."},
+
+  {id:"M1",stage:"meet",kind:"trigger",change:"kept",title:"Meeting booked, native invite",
+   trigger:"HubSpot Meetings booking, or calendar event with an external attendee.",
+   does:"Invite and confirmation stay native. Deal created or moved to Discovery.",
+   gate:"None.", client:"Calendar invite.", systems:["HubSpot Meetings","Outlook"], agent:"—",
+   challenge:"Sending the invite needs no agent. The value is in preparation and no-show handling."},
+  {id:"M2",stage:"meet",kind:"auto",change:"new",title:"Prep brief for the GM",
+   trigger:"24 hours before the meeting.",
+   does:"Company snapshot, active ads from the Meta Ad Library, website and tracking scan, every earlier touchpoint, suggested questions. Posted to the GM in Slack.",
+   gate:"None, internal only.", client:"Nothing.", systems:["Clay","Meta Ad Library","HubSpot","Slack"], agent:"Meeting"},
+  {id:"M3",stage:"meet",kind:"approve",change:"new",title:"No-show → reschedule draft",
+   trigger:"15 minutes after start, no attendance and no recording.",
+   does:"Drafts a friendly reschedule mail with a booking link.", gate:"GM approves.", client:"A mail from the GM.", systems:["Outlook","Fathom"], agent:"Meeting"},
+
+  {id:"AM1",stage:"after",kind:"approve",change:"changed",title:"Recap in the GM's voice",
+   trigger:"Fathom recording and transcript ready.",
+   does:"Drafts the recap: their goals, what we heard, agreed next steps with owners and dates. Leaves out internal remarks.",
+   gate:"GM approves or edits in Slack. Sent from the GM's mailbox, in the invite thread.", client:"A recap from the GM, same day.", systems:["Fathom","Outlook","Slack"], agent:"Meeting",
+   challenge:"Auto-sending an AI summary is the biggest risk to \"never feels automated\": a wrong number, a misheard name or an internal remark goes straight to the prospect. Keep the approval until the edit rate is low."},
+  {id:"AM2",stage:"after",kind:"auto",change:"new",title:"CRM updated",
+   trigger:"Same recording.",
+   does:"Writes notes, next step, close date and stage to the HubSpot deal, creates tasks, links the recording.",
+   gate:"None (FYI in the project thread).", client:"Nothing.", systems:["HubSpot","Fathom"], agent:"Meeting"},
+  {id:"AM3",stage:"after",kind:"human",change:"changed",title:"GM picks the next step",
+   trigger:"Recap sent.",
+   does:"Slack buttons: Request access · Send proposal · Nurture · Lost.",
+   gate:"GM decides.", client:"Nothing.", systems:["Slack"], agent:"—",
+   challenge:"Today \"if the prospect is triggered\" is implicit. Make it an explicit button so the agent never guesses."},
+  {id:"AM4",stage:"after",kind:"approve",change:"changed",title:"Access requests + client checklist page",
+   trigger:"GM clicks Request access.",
+   does:"Sends partner and manager requests itself where platforms allow (Meta Business Manager, Google Ads manager link). Mails a client-specific page with a per-platform checklist and explainer video: GA4, GTM, Search Console, LinkedIn Campaign Manager, Merchant Center.",
+   gate:"GM approves the first mail. Reminders on day 3 and 7 go automatically; day 10 escalates to the GM.", client:"One clear page instead of a long instruction mail.", systems:["Meta","Google","LinkedIn","Landing page"], agent:"Access",
+   challenge:"A UTM click shows interest, not access. Track the real outcome per platform. Ask read access for an audit; full rights after signing."},
+  {id:"AM5",stage:"after",kind:"auto",change:"new",title:"Access verified per platform",
+   trigger:"Polling the platform APIs every few hours.",
+   does:"Ticks off each platform when access works and posts the status (Meta ✓ Google Ads ✓ GA4 ✗). All green starts the audit.",
+   gate:"None.", client:"Reminders stop as soon as access works.", systems:["Meta","Google Ads","GA4","LinkedIn"], agent:"Access"},
+
+  {id:"PC1",stage:"close",kind:"approve",change:"changed",title:"Resourcing pre-check",
+   trigger:"Deal moves to Proposal.",
+   does:"Reads Productive capacity and the skills matrix, proposes a team and the earliest realistic start date for the proposal. Makes a soft reservation.",
+   gate:"Planning lead accepts or declines in Slack.", client:"A start date we can keep.", systems:["Productive","Slack"], agent:"Resourcing",
+   challenge:"Checking capacity after signature means the proposal can promise a start date nobody can staff. Reserve softly at proposal, confirm at signature."},
+  {id:"PC2",stage:"close",kind:"human",change:"kept",title:"Proposal",
+   trigger:"—", does:"GM or sales writes the proposal; the agent can pre-fill context from transcripts and the audit.",
+   gate:"GM / sales.", client:"The proposal.", systems:["HubSpot"], agent:"—"},
+  {id:"PC3",stage:"close",kind:"approve",change:"kept",title:"Waiting for signature → DocuSign",
+   trigger:"Deal moves to Waiting for signature.",
+   does:"Creates the DocuSign envelope from the HubSpot quote and pre-fills the signer.",
+   gate:"Sales validates and sends with one click.", client:"A signing request from sales.", systems:["DocuSign","HubSpot"], agent:"Deal Desk"},
+  {id:"PC4",stage:"close",kind:"auto",change:"new",title:"Reminders, signed → Closed won",
+   trigger:"3 and 7 working days unsigned; DocuSign signed webhook.",
+   does:"Sends DocuSign reminders. On signature moves the deal to Closed won and starts handover.",
+   gate:"None.", client:"Standard signing reminders.", systems:["DocuSign","HubSpot"], agent:"Deal Desk"},
+  {id:"PC5",stage:"close",kind:"approve",change:"changed",title:"CRM completeness",
+   trigger:"Deal moves to Waiting for signature.",
+   does:"Links all Fathom calls, emails and meetings to the deal and lists only the gaps.",
+   gate:"Sales confirms the gaps with one click.", client:"Nothing.", systems:["HubSpot","Fathom"], agent:"Deal Desk",
+   challenge:"Today a person checks everything. Flip it: the agent links, the human reviews exceptions."},
+
+  {id:"H1",stage:"hand",kind:"approve",change:"changed",title:"Productive project + budget",
+   trigger:"Closed won.",
+   does:"Creates the Productive project and budget from the quote line items.",
+   gate:"Finance or PL confirms.", client:"Nothing.", systems:["Productive","HubSpot"], agent:"Deal Desk",
+   challenge:"Re-typing the budget creates mismatches with the quote. The quote is the source of truth."},
+  {id:"H2",stage:"hand",kind:"human",change:"changed",title:"Team confirmed and booked",
+   trigger:"Closed won.", does:"Turns the soft reservation from PC1 into bookings in Productive.",
+   gate:"Planning lead confirms.", client:"Nothing.", systems:["Productive"], agent:"Resourcing"},
+  {id:"H3",stage:"hand",kind:"approve",change:"new",title:"Handover pack + kickoff",
+   trigger:"Closed won.",
+   does:"Brief for the delivery team (goals, KPIs, stakeholders, promises made in calls, access status), internal Slack channel, kickoff invite draft.",
+   gate:"GM approves the kickoff invite.", client:"A kickoff invite that already knows their context.", systems:["Slack","Outlook","Fathom"], agent:"PL Orchestrator",
+   challenge:"The written process ends at signature. The handover is where context gets lost and GMs re-ask questions the client already answered."},
+  {id:"H4",stage:"hand",kind:"human",change:"new",title:"Phase 2: delivery",
+   trigger:"Kickoff done.", does:"Weekly status, reporting, budget pacing, renewals. To be mapped next.",
+   gate:"—", client:"—", systems:["Productive","Slack"], agent:"—",
+   challenge:"This is probably where most GM hours go. Map it after a one-week time log."}
+];
+
+const BIGS = [
+  {t:"The process is about sales, the goal is about growth managers",
+   p:"Almost every written step happens before signature. GM time mostly goes to delivery: kickoff, access chasing, status mails, reporting, renewals. Run a one-week time log with two or three GMs and rank by hours. Treat this as phase 1 and map delivery next."},
+  {t:"Every trigger depends on CRM discipline",
+   p:"\"Didn't pick up\", \"moved to waiting for signature\", \"triggered for next meeting\" only work if someone sets a structured field. Make call dispositions mandatory and let the agent flag inconsistent deals instead of silently skipping them."},
+  {t:"\"Never feels automated\" needs written rules",
+   p:"Personal mailbox, threaded replies, business hours with jitter, a touch cap, and any reply stops the automation. Anything a person would write uniquely stays draft-and-approve until it has earned more autonomy."},
+  {t:"Not one PL agent, but a team",
+   p:"One agent that does everything is hard to test and hard to give scoped permissions. Use one orchestrator per project that owns state and the action log, plus specialists with narrow tool access."}
+];
+const RULES = [
+  "Sent from a real person's mailbox (GM or sales), plain text, normal signature. Never a no-reply.",
+  "Threaded into the existing conversation when there is one.",
+  "Business hours only, with a random offset. No weekends, Belgian holidays respected.",
+  "Any reply from the client stops all automation for that contact and goes to the owner in Slack.",
+  "Every message refers to something specific: the call, the download, the meeting.",
+  "A cap on touches per contact per week.",
+  "Recaps, proposals and anything unique stay draft-and-approve until promoted."
+];
+const QUESTIONS = [
+  "Is sales a separate role from the growth manager, or the same person?",
+  "Do all senders use Microsoft 365 / Outlook? Needed to send as the GM.",
+  "Where do proposals live today: HubSpot quotes, Google Docs, something else?",
+  "Who owns the event calendar, and how often are events planned?",
+  "Is there a skills matrix, or only Productive bookings?",
+  "Which platforms do we ask access for, per service line?",
+  "Shared Slack Connect channels with clients, or internal only?"
+];
+const AGENTS = [
+  {n:"PL Orchestrator", s:"One per project. Owns state and timeline, routes events to specialists, enforces the autonomy policy, posts in the project thread, builds the handover pack.", tools:["Action log","Slack","All agents"]},
+  {n:"Nurture", s:"Inbound and outbound follow-ups, preferences, event interest.", tools:["HubSpot","Clay","Outlook send-as"]},
+  {n:"Meeting", s:"Prep briefs, no-shows, recaps, CRM updates after meetings.", tools:["Fathom","HubSpot","Clay","Meta Ad Library","Outlook"]},
+  {n:"Access", s:"Access requests, client checklist page, API verification, reminders.", tools:["Meta Business Manager","Google Ads / GA4 / GTM","LinkedIn","Landing page"]},
+  {n:"Deal Desk", s:"DocuSign, signature follow-up, CRM completeness, budget creation.", tools:["DocuSign","HubSpot quotes","Productive"]},
+  {n:"Resourcing", s:"Capacity and skills match, soft reservations, bookings.", tools:["Productive","Skills matrix"]}
+];
+const LADDER = [
+  {l:"L0",n:"Suggest",d:"Agent posts a recommendation. A person does the work."},
+  {l:"L1",n:"Draft & approve",d:"Agent prepares. A person approves, edits or skips in Slack."},
+  {l:"L2",n:"Act & notify",d:"Agent acts and posts an FYI with an undo window, for example 15 minutes before a send."},
+  {l:"L3",n:"Autonomous",d:"Agent acts. Visible in the action log only."}
+];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const active = new Set(Object.keys(KINDS));
+let onlyChallenges = false;
+let selected = "AM1";
+
+function tags(st){
+  let h = "";
+  if (st.change === "new") h += '<span class="tag new">New</span>';
+  if (st.change === "changed") h += '<span class="tag">Changed</span>';
+  if (st.challenge) h += '<span class="tag warn">Challenge</span>';
+  return h;
+}
+function renderLegend(){
+  const el = $("#legend");
+  el.innerHTML = Object.entries(KINDS).map(([k,v]) =>
+    `<button class="chip k-${k}" data-kind="${k}" aria-pressed="${active.has(k)}"><span class="dot"></span>${v.label}</button>`
+  ).join("") + '<span class="spacer"></span><button class="chip" id="onlych" aria-pressed="false"><span class="dot" style="--c:var(--warn)"></span>Only steps with a challenge</button>';
+  el.querySelectorAll("[data-kind]").forEach(b => b.onclick = () => {
+    const k = b.dataset.kind; active.has(k) ? active.delete(k) : active.add(k);
+    b.setAttribute("aria-pressed", active.has(k)); applyFilter();
+  });
+  $("#onlych").onclick = e => { onlyChallenges = !onlyChallenges; e.currentTarget.setAttribute("aria-pressed", onlyChallenges); applyFilter(); };
+}
+function renderBoard(){
+  $("#cols").innerHTML = STAGES.map(sg => {
+    const cards = STEPS.filter(s => s.stage === sg.id).map(s =>
+      `<button class="card k-${s.kind}" data-id="${s.id}" aria-current="${s.id===selected}">
+        <span class="top"><span class="id">${s.id}</span><span class="kind">${KINDS[s.kind].label}</span></span>
+        <span class="t">${esc(s.title)}</span>
+        <span class="top">${tags(s)}</span>
+      </button>`).join("");
+    return `<div class="col"><div class="colhead"><span class="eyebrow">${sg.sub}</span><h3>${sg.name}</h3></div>${cards}</div>`;
+  }).join("");
+  document.querySelectorAll(".card").forEach(c => c.onclick = () => select(c.dataset.id));
+  applyFilter();
+}
+function applyFilter(){
+  document.querySelectorAll(".card").forEach(c => {
+    const s = STEPS.find(x => x.id === c.dataset.id);
+    c.hidden = !active.has(s.kind) || (onlyChallenges && !s.challenge);
+  });
+}
+function select(id){
+  selected = id;
+  document.querySelectorAll(".card").forEach(c => c.setAttribute("aria-current", c.dataset.id === id));
+  const s = STEPS.find(x => x.id === id);
+  const stage = STAGES.find(x => x.id === s.stage);
+  $("#panel").className = "panel k-" + s.kind;
+  $("#panel").innerHTML = `
+    <div style="display:grid;gap:6px">
+      <span class="top" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="id">${s.id} · ${stage.name}</span><span class="kind" style="color:var(--c)">${KINDS[s.kind].label}</span>${tags(s)}</span>
+      <h2>${esc(s.title)}</h2>
+    </div>
+    <dl>
+      <div><dt>Trigger</dt><dd>${esc(s.trigger)}</dd></div>
+      <div><dt>What the agent does</dt><dd>${esc(s.does)}</dd></div>
+      <div><dt>Human gate</dt><dd>${esc(s.gate)}</dd></div>
+      <div><dt>What the client sees</dt><dd>${esc(s.client)}</dd></div>
+      <div><dt>Agent</dt><dd>${esc(s.agent)}</dd></div>
+      <div><dt>Systems</dt><dd class="systems">${s.systems.map(x => `<span class="sys">${esc(x)}</span>`).join("")}</dd></div>
+    </dl>
+    ${s.challenge ? `<div class="callout"><span class="eyebrow">Challenge to today's process</span><p>${esc(s.challenge)}</p></div>` : ""}`;
+}
+function renderChallenges(){
+  $("#bigs").innerHTML = BIGS.map(b => `<div class="box big"><h3>${esc(b.t)}</h3><p class="muted">${esc(b.p)}</p></div>`).join("");
+  $("#rules").innerHTML = RULES.map(r => `<li>${esc(r)}</li>`).join("");
+  $("#questions").innerHTML = QUESTIONS.map(r => `<li>${esc(r)}</li>`).join("");
+  $("#stepchallenges").innerHTML = STEPS.filter(s => s.challenge).map(s =>
+    `<div class="box"><button class="link" data-goto="${s.id}">${s.id} · open in flow →</button><h3>${esc(s.title)}</h3><p class="muted">${esc(s.challenge)}</p></div>`).join("");
+  document.querySelectorAll("[data-goto]").forEach(b => b.onclick = () => { showTab("flow"); select(b.dataset.goto); });
+}
+function renderAgents(){
+  $("#agents").innerHTML = AGENTS.map(a => {
+    const own = STEPS.filter(s => s.agent === a.n);
+    return `<div class="box"><h3>${esc(a.n)}${a.n==="PL Orchestrator"?"":" Agent"}</h3><p class="muted">${esc(a.s)}</p>
+      <div class="systems">${a.tools.map(t => `<span class="sys">${esc(t)}</span>`).join("")}</div>
+      ${own.length ? `<div class="steps">${own.map(s => `<button class="link" data-goto="${s.id}">${s.id}</button>`).join(" · ")}</div>` : ""}</div>`;
+  }).join("");
+  $("#ladder").innerHTML = LADDER.map(r => `<div class="rung"><span class="lv">${r.l}</span><h3>${r.n}</h3><p class="note">${r.d}</p></div>`).join("");
+  document.querySelectorAll("#agents [data-goto]").forEach(b => b.onclick = () => { showTab("flow"); select(b.dataset.goto); });
+}
+function renderTracking(){
+  const kpis = [["3","Waiting on a human"],["14","Agent actions this week"],["92%","Approved without edits"],["~2.5 h","GM time saved this week (est.)"]];
+  $("#kpis").innerHTML = kpis.map(([v,l]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  $("#stages").innerHTML = STAGES.map((s,i) => `<div class="stg ${i<3?"done":i===3?"now":""}" title="${s.name}">${s.name}</div>`).join("");
+  const acc = [["Meta","ok","✓ verified"],["Google Ads","ok","✓ verified"],["GA4","wait","requested · day 4"],["GTM","wait","requested · day 4"],["LinkedIn","no","not started"]];
+  $("#access").innerHTML = acc.map(([p,c,t]) => `<span class="pill ${c}">${p} ${t}</span>`).join("");
+  const appr = [
+    ["AM3","Next step after discovery call","GM","Request access was chosen. Next: send proposal?"],
+    ["AM4","Access reminder #2 to client (GA4, GTM)","Access Agent","Auto-sends tomorrow 09:40 unless skipped"],
+    ["PC1","Team proposal: 1 PPC, 1 analytics, start week 46","Resourcing Agent","Planning lead to accept or decline"]
+  ];
+  $("#approvals").innerHTML = appr.map(([id,w,a,n]) =>
+    `<div class="appr"><span class="id">${id}</span><div class="what"><strong>${w}</strong><div class="note">${a} · ${n}</div></div>
+     <span style="display:flex;gap:6px"><button class="btn primary" type="button">Approve</button><button class="btn" type="button">Edit</button><button class="btn" type="button">Skip</button></span></div>`).join("");
+  const rows = [
+    ["Mon 6 Oct 10:12","Meeting","M2","Prep brief posted to GM","L3","executed","—"],
+    ["Tue 7 Oct 11:48","Meeting","AM1","Recap drafted from Fathom transcript","L1","edited","GM"],
+    ["Tue 7 Oct 12:05","Meeting","AM1","Recap sent from GM mailbox","L1","executed","GM"],
+    ["Tue 7 Oct 12:06","Meeting","AM2","HubSpot deal updated: stage, next step, 3 tasks","L3","executed","—"],
+    ["Tue 7 Oct 14:30","—","AM3","GM chose: Request access","—","executed","GM"],
+    ["Tue 7 Oct 14:31","Access","AM4","Meta partner request + Google Ads link sent","L2","executed","—"],
+    ["Tue 7 Oct 14:40","Access","AM4","Checklist page mail sent from GM mailbox","L1","executed","GM"],
+    ["Wed 8 Oct 09:10","Access","AM5","Meta access verified","L3","executed","—"],
+    ["Thu 9 Oct 16:22","Access","AM5","Google Ads access verified","L3","executed","—"],
+    ["Sat 11 Oct 08:00","Resourcing","PC1","Team + start date proposed","L1","pending","Planning lead"]
+  ];
+  $("#log").innerHTML = `<thead><tr><th>When</th><th>Agent</th><th>Step</th><th>Action</th><th>Level</th><th>Status</th><th>By</th></tr></thead><tbody>` +
+    rows.map(r => `<tr><td class="num">${r[0]}</td><td>${r[1]}</td><td><button class="link" data-goto="${r[2]}">${r[2]}</button></td><td>${r[3]}</td><td><span class="lvl">${r[4]}</span></td><td><span class="st ${r[5]}">${r[5]}</span></td><td>${r[6]}</td></tr>`).join("") + "</tbody>";
+  document.querySelectorAll("#log [data-goto]").forEach(b => b.onclick = () => { showTab("flow"); select(b.dataset.goto); });
+}
+function showTab(t){
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
+  ["flow","challenges","agents","tracking"].forEach(v => $("#view-"+v).hidden = v !== t);
+  try { history.replaceState(null, "", "#" + t); } catch(e) {}
+}
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
+renderLegend(); renderBoard(); select(selected); renderChallenges(); renderAgents(); renderTracking();
+const h = (location.hash || "").slice(1);
+if (["flow","challenges","agents","tracking"].includes(h)) showTab(h);
+</script>
