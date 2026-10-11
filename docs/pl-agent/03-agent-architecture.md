@@ -64,7 +64,13 @@ Suggested stack (to validate):
 - Slack: one Slack app with interactive messages + slash commands.
 - Webapp: Next.js on Supabase auth (Google / Microsoft SSO).
 
-## Slack as the cockpit
+## Outlook first, Slack second
+
+Stage 1 (see `07-internal-first-rollout.md`): every client-facing draft lands
+in the owner's Outlook Drafts, with one internal `[PL Agent]` mail per batch.
+The owner sends it themselves. Slack is used for internal alerts and the
+ops/PL view; from stage 2 it can also carry one-click approvals:
+
 
 - `#pl-agent-inbox`: everything waiting for a human, one message per approval
   with **Approve / Edit / Skip**. Daily digest per GM at 08:30.

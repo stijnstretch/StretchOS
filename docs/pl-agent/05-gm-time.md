@@ -28,7 +28,7 @@ internal coordination, project admin, onboarding and account growth.
 
 | Agent | Takes over | GM keeps | Trigger | Systems |
 |---|---|---|---|---|
-| **Client Pulse** | Drafts the weekly status mail: what was done (Productive), results on the client's KPIs, next steps, open questions for the client. | Approve or edit in Slack; sent from the GM's Outlook | Weekly, per client | Outlook, Productive, ad platforms |
+| **Client Pulse** | Drafts the weekly status mail: what was done (Productive), results on the client's KPIs, next steps, open questions for the client. | Gets the draft in Outlook Drafts, edits and sends | Weekly, per client | Outlook, Productive, ad platforms |
 | **Inbox triage** | Reads incoming client mail, classifies it (question, request, approval, complaint, urgent), drafts the reply with the facts filled in, turns requests into Productive tasks. | Sending; anything sensitive | Incoming Outlook mail | Outlook, Productive |
 | **Meeting** | Prep brief before every client meeting (what happened since last time, open actions, suggested agenda). Recap after, sent as the GM, with actions turned into tasks. | Running the meeting, approving the recap | Calendar, Fathom | Outlook calendar, Fathom, Productive |
 | **Promise tracker** | Keeps a list of everything the GM or the team promised the client in mails and calls, with dates. Warns before a promise is late; drafts the follow-up when it's done. | Deciding priorities | Continuous | Outlook, Fathom, Productive |
@@ -64,6 +64,9 @@ KPIs are typical per service package is still to be decided.
   coordinator, supported by the agents, instead of the GM.
 
 ## Where to start
+
+All client communication starts **internal first**: drafts go to the GM's
+Outlook, the GM sends. See `07-internal-first-rollout.md`.
 
 1. **Client Pulse** and **Meeting** at L1 (draft and approve): they hit GM
    communication time directly and every mail is checked.

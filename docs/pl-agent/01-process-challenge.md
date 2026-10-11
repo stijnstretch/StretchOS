@@ -91,6 +91,8 @@ the last 30 instances, the system proposes promoting it one level. The PL
 decides. Any client complaint or wrong send demotes it immediately.
 
 Start: everything client-facing at L1, internal bookkeeping at L2/L3.
+In stage 1, L1 means: draft in the owner's Outlook Drafts plus an internal
+mail; the owner sends it. See `07-internal-first-rollout.md`.
 
 ---
 
